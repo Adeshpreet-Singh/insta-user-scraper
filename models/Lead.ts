@@ -16,6 +16,14 @@ export interface ILead extends Document {
 
     externalUrl?: string;
     externalUrls?: { title?: string; url: string }[];
+    aiAnalysis?: {
+        category?: string;
+        painPoints?: string[];
+        coldCallOpener?: string;
+        conversationHooks?: string[];
+        objectionHandlers?: { objection: string; response: string }[];
+        analyzedAt?: Date;
+    };
     updatedAt: Date;
 }
 
@@ -45,6 +53,17 @@ const LeadSchema: Schema = new Schema({
             url: { type: String },
         },
     ],
+    aiAnalysis: {
+        category: { type: String },
+        painPoints: [{ type: String }],
+        coldCallOpener: { type: String },
+        conversationHooks: [{ type: String }],
+        objectionHandlers: [{
+            objection: { type: String },
+            response: { type: String }
+        }],
+        analyzedAt: { type: Date }
+    }
 }, { timestamps: true });
 
 // Force re-registration during dev hot reloads so schema changes (like adding 'status') take effect
