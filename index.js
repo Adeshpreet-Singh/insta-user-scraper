@@ -1,7 +1,40 @@
-require('dotenv').config();
 const { ApifyClient } = require('apify-client');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+
+// Load env vars
+require('dotenv').config({ path: path.join(__dirname, '.env.local') });
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // Fallback
+
+// DB Connection
+const MONGODB_URI = process.env.MONGODB_URI;
+const LeadSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    fullName: String,
+    followersCount: Number,
+    followsCount: Number,
+    postsCount: Number,
+    biography: String,
+    url: String,
+    profilePicUrl: String,
+    businessCategoryName: String,
+    isVerified: Boolean,
+    status: { type: String, default: 'new' },
+    externalUrl: String,
+    externalUrls: Array,
+    biographyEmail: String,
+    biographyPhone: String,
+    updatedAt: { type: Date, default: Date.now },
+    aiAnalysis: Object
+});
+
+let Lead;
+try {
+    Lead = mongoose.model('Lead');
+} catch {
+    Lead = mongoose.model('Lead', LeadSchema);
+}
 
 const client = new ApifyClient({
     token: process.env.APIFY_TOKEN,
@@ -32,6 +65,18 @@ async function runScraper() {
         return;
     }
 
+    // Connect to DB if possible
+    let useDB = false;
+    if (MONGODB_URI) {
+        try {
+            await mongoose.connect(MONGODB_URI);
+            console.log('✅ Connected to MongoDB. Results will be synced.');
+            useDB = true;
+        } catch (e) {
+            console.warn('⚠️ MongoDB connection failed. Saving locally only.');
+        }
+    }
+
     // Check if the first argument is a text file
     if (args[0].endsWith('.txt')) {
         const filePath = path.resolve(args[0]);
@@ -41,6 +86,7 @@ async function runScraper() {
             usernames = content.split(/\r?\n/).map(u => u.trim()).filter(u => u.length > 0);
         } else {
             console.error(`❌ File not found: ${filePath}`);
+            if (useDB) await mongoose.disconnect();
             return;
         }
     } else {
@@ -61,6 +107,7 @@ async function runScraper() {
 
     if (pendingUsernames.length === 0) {
         console.log('✅ All profiles have already been scraped. Nothing to do.');
+        if (useDB) await mongoose.disconnect();
         return;
     }
 
@@ -82,22 +129,42 @@ async function runScraper() {
                 usernames: currentChunk,
             });
 
-            console.log(`� Downloading results for chunk ${i + 1}...`);
+            console.log(`⏳ Downloading results for chunk ${i + 1}...`);
             const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
-            items.forEach((userData) => {
+            for (const userData of items) {
                 const username = userData.username || 'unknown';
 
                 // Print quick summary
                 console.log(`✨ [${username}] - Followers: ${userData.followersCount} | Email: ${userData.biographyEmail || 'N/A'}`);
 
+                // Save locally
                 const fileName = `${username}_data.json`;
                 const filePath = path.join(outputDir, fileName);
                 fs.writeFileSync(filePath, JSON.stringify(userData, null, 2));
+                
+                // Save to DB
+                if (useDB && userData.username) {
+                    try {
+                        await Lead.findOneAndUpdate(
+                            { username: userData.username },
+                            { 
+                                ...userData, 
+                                updatedAt: new Date(),
+                                // Don't overwrite status if it exists
+                                $setOnInsert: { status: 'new' } 
+                            },
+                            { upsert: true, new: true }
+                        );
+                    } catch (dbErr) {
+                        console.error(`❌ DB Error for ${username}:`, dbErr.message);
+                    }
+                }
+                
                 allResults.push(userData);
-            });
+            }
 
-            console.log(`✅ Chunk ${i + 1} complete. Saved ${items.length} files.`);
+            console.log(`✅ Chunk ${i + 1} complete. Saved ${items.length} profiles.`);
         } catch (error) {
             console.error(`❌ Error in chunk ${i + 1}:`, error.message);
         }
@@ -109,7 +176,7 @@ async function runScraper() {
         const csvRows = allResults.map(userData => {
             return [
                 userData.username || '',
-                (userData.fullName || '').replace(/,/g, ' '),
+                (userData.fullName || '').replace(/,/g, ' ').replace(/"/g, "'"),
                 userData.followersCount || 0,
                 userData.externalUrl || '',
                 userData.biographyEmail || '',
@@ -118,7 +185,7 @@ async function runScraper() {
                 userData.postsCount || 0,
                 userData.isVerified ? 'Yes' : 'No',
                 userData.url || ''
-            ].map(val => `"${val}"`).join(',');
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
         });
 
         const csvContent = [csvHeaders.join(','), ...csvRows].join('\n');
@@ -127,7 +194,12 @@ async function runScraper() {
         console.log(`\n📊 Final CSV Summary generated: ${csvPath}`);
     }
 
-    console.log(`\n✨ Scraping process finished! Total new profiles saved: ${allResults.length}`);
+    if (useDB) {
+        await mongoose.disconnect();
+        console.log('🔌 Disconnected from MongoDB.');
+    }
+
+    console.log(`\n✨ Scraping process finished! Total profiles processed: ${allResults.length}`);
 }
 
 runScraper();

@@ -75,7 +75,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { id, contacted, status } = body;
+        const { id, contacted, status, privateNotes } = body;
 
         console.log(`[API POST] Updating lead ${id}: status=${status}, contacted=${contacted}`);
 
@@ -88,6 +88,7 @@ export async function POST(request: Request) {
         const update: any = {};
         if (contacted !== undefined) update.contacted = contacted;
         if (status !== undefined) update.status = status;
+        if (privateNotes !== undefined) update.privateNotes = privateNotes;
 
         console.log('[API POST] update data:', update);
 

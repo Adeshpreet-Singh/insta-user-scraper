@@ -7,10 +7,13 @@ export interface ILead extends Document {
     followsCount?: number;
     postsCount?: number;
     biography?: string;
+    biographyEmail?: string;
+    biographyPhone?: string;
     url: string;
     profilePicUrl?: string;
     businessCategoryName?: string;
     verified?: boolean;
+    isVerified?: boolean;
     contacted?: boolean;
     status: 'new' | 'for design reference' | 'can contact' | 'contacted';
 
@@ -19,11 +22,32 @@ export interface ILead extends Document {
     aiAnalysis?: {
         category?: string;
         painPoints?: string[];
-        coldCallOpener?: string;
+        coldMessage?: string;
+        hinglishMessage?: string;
+        icebreaker?: string;
+        hinglishIcebreaker?: string;
+        coldCallOpener?: string; // Added
+        whatsappScript?: string;
+        followUpStrategy?: string;
+        estimatedAnnualROI? : string;
+        bestTimeToCall?: string;
+        indianStrategy?: string;
+        projectValueINR?: number;
+        estimatedProjectValue?: string;
+        engagementAnalysis?: string;
         conversationHooks?: string[];
+        opportunityCost?: string;
+        personalityVibe?: string;
+        contentStrategy?: string[];
         objectionHandlers?: { objection: string; response: string }[];
+        conversionChance?: number;
+        leadScore?: number;
+        outreachPriority?: string;
+        qualityGrade?: string;
+        strategicRationale?: string;
         analyzedAt?: Date;
     };
+    privateNotes?: string;
     updatedAt: Date;
 }
 
@@ -34,10 +58,13 @@ const LeadSchema: Schema = new Schema({
     followsCount: { type: Number },
     postsCount: { type: Number },
     biography: { type: String },
+    biographyEmail: { type: String },
+    biographyPhone: { type: String },
     url: { type: String, required: true },
     profilePicUrl: { type: String },
     businessCategoryName: { type: String },
     verified: { type: Boolean, default: false },
+    isVerified: { type: Boolean },
     contacted: { type: Boolean, default: false },
     status: {
         type: String,
@@ -56,14 +83,35 @@ const LeadSchema: Schema = new Schema({
     aiAnalysis: {
         category: { type: String },
         painPoints: [{ type: String }],
+        coldMessage: { type: String },
+        hinglishMessage: { type: String },
+        icebreaker: { type: String },
+        hinglishIcebreaker: { type: String },
         coldCallOpener: { type: String },
         conversationHooks: [{ type: String }],
+        engagementAnalysis: { type: String },
+        estimatedProjectValue: { type: String },
+        projectValueINR: { type: Number },
+        opportunityCost: { type: String },
+        personalityVibe: { type: String },
+        bestTimeToCall: { type: String },
+        whatsappScript: { type: String },
+        followUpStrategy: { type: String },
+        estimatedAnnualROI: { type: String },
+        indianStrategy: { type: String },
+        contentStrategy: [{ type: String }],
         objectionHandlers: [{
             objection: { type: String },
             response: { type: String }
         }],
+        conversionChance: { type: Number },
+        leadScore: { type: Number },
+        outreachPriority: { type: String },
+        qualityGrade: { type: String },
+        strategicRationale: { type: String },
         analyzedAt: { type: Date }
-    }
+    },
+    privateNotes: { type: String }
 }, { timestamps: true });
 
 // Force re-registration during dev hot reloads so schema changes (like adding 'status') take effect

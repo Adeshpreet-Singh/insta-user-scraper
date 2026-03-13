@@ -1,0 +1,8 @@
+scripts/backfill_from_csv.ts(116,47): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(117,13): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(122,51): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(123,13): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(128,45): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(128,80): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+scripts/backfill_from_csv.ts(129,13): error TS18048: 'lead.aiAnalysis' is possibly 'undefined'.
+tmp/inspect_sample.ts(12,33): error TS18048: 'mongoose.connection.db' is possibly 'undefined'.

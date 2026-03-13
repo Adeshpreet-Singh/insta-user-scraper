@@ -1,7 +1,73 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Lead from '@/models/Lead';
-import { GoogleGenAI } from '@google/genai';
+// --- GEMINI (commented out) ---
+// import { GoogleGenAI } from '@google/genai';
+import { OpenRouter } from '@openrouter/sdk';
+
+export const dynamic = 'force-dynamic';
+
+/**
+ * List of top free models to try for lead analysis
+ */
+const FREE_MODELS = [
+    'openrouter/hunter-alpha',
+    'openrouter/healer-alpha',
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'google/gemma-3-27b-it:free',
+    'mistralai/mistral-small-3.1-24b-instruct:free',
+    'google/gemma-3-12b-it:free',
+    'meta-llama/llama-3.2-3b-instruct:free',
+    'stepfun/step-3.5-flash:free',
+];
+
+/**
+ * Helper to clean and extract JSON from AI text
+ */
+function cleanJSON(text: string): string {
+    let cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    if (!cleaned.startsWith('{')) {
+        const start = cleaned.indexOf('{');
+        const end = cleaned.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+            cleaned = cleaned.substring(start, end + 1);
+        }
+    }
+    return cleaned;
+}
+
+/**
+ * Intelligent helper to call AI with sequential fallback
+ */
+async function callAIWithFallback(prompt: string, openRouter: OpenRouter): Promise<string> {
+    for (const model of FREE_MODELS) {
+        try {
+            console.log(`[AI] Attempting with model: ${model}...`);
+            const stream = await openRouter.chat.send({
+                chatGenerationParams: {
+                    model,
+                    messages: [{ role: 'user', content: prompt }],
+                    stream: true,
+                }
+            });
+
+            let fullText = '';
+            for await (const chunk of stream) {
+                const content = (chunk as any).choices?.[0]?.delta?.content;
+                if (content) fullText += content;
+            }
+
+            if (fullText.trim()) {
+                const cleaned = cleanJSON(fullText);
+                console.log(`[AI] Success with ${model}`);
+                return cleaned;
+            }
+        } catch (error: any) {
+            console.warn(`[AI] Model ${model} failed:`, error.message || error);
+        }
+    }
+    throw new Error('All attempts to call free AI models failed on OpenRouter.');
+}
 
 export async function POST(request: Request) {
     try {
@@ -12,12 +78,22 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Lead ID is required' }, { status: 400 });
         }
 
-        if (!process.env.GEMINI_API_KEY) {
-            console.error("ERROR: GEMINI_API_KEY is missing.");
-             return NextResponse.json({ error: 'Gemini API key is not configured' }, { status: 500 });
+        // --- GEMINI (commented out) ---
+        // if (!process.env.GEMINI_API_KEY) {
+        //     console.error("ERROR: GEMINI_API_KEY is missing.");
+        //      return NextResponse.json({ error: 'Gemini API key is not configured' }, { status: 500 });
+        // }
+        // const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        // --- OPENROUTER ---
+        if (!process.env.OPENROUTER_API_KEY) {
+            console.error("ERROR: OPENROUTER_API_KEY is missing.");
+            return NextResponse.json({ error: 'OpenRouter API key is not configured' }, { status: 500 });
         }
-        
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+        const openRouter = new OpenRouter({
+            apiKey: process.env.OPENROUTER_API_KEY,
+        });
         
         await connectDB();
         
@@ -30,60 +106,97 @@ export async function POST(request: Request) {
         console.log(`[ANALYZE] Starting analysis for @${lead.username} (${id})`);
 
         const prompt = `
-You are an expert sales strategist and copywriter focusing on web design services for small businesses and creators.
-Analyze the following Instagram profile based on its scraped data:
-Username: ${lead.username}
-Full Name: ${lead.fullName || 'N/A'}
-Followers: ${lead.followersCount || 'Unknown'}
-Category: ${lead.businessCategoryName || 'Unknown'}
-URL in Bio: ${lead.url || 'None'}
-External URLs: ${lead.externalUrls && lead.externalUrls.length > 0 ? lead.externalUrls.map((u: any) => u.url).join(', ') : 'None'}
-Biography: ${lead.biography || 'None'}
+You are an expert sales strategist and high-conversion copywriter specializing in the **Indian market**. You know that Indian business owners are discerning, value-conscious, and relationship-driven.
 
-Your goal is to prepare a comprehensive cold call strategy for pitching a website design/optimization service to this specific Indian small business. I am the web designer making the call.
+Analyze the following Instagram profile and craft a strategy that "cracks" the Indian market:
+- Username: ${lead.username}
+- Full Name: ${lead.fullName || 'N/A'}
+- Followers: ${lead.followersCount || 'Unknown'}
+- Following: ${lead.followsCount || 'Unknown'}
+- Posts: ${lead.postsCount || 'Unknown'}
+- Category: ${lead.businessCategoryName || 'Unknown'}
+- Email: ${lead.biographyEmail || 'Not explicitly provided'}
+- Phone: ${lead.biographyPhone || 'Not explicitly provided'}
+- URL in Bio: ${lead.url || 'None'}
+- External URLs: ${lead.externalUrls && lead.externalUrls.length > 0 ? lead.externalUrls.map((u: any) => u.url).join(', ') : 'None'}
+- Biography: ${lead.biography || 'None'}
 
-Provide a JSON response with the following strictly formatted keys:
-1. "category": A concise label for their business type (e.g., "Local Bakery", "Freelance Photographer", "Online Clothing Store").
-2. "painPoints": An array of exactly 3 specific, data-backed pain points. Each should be ONE sentence that cites actual evidence from their profile data (e.g., "Despite 4.2k followers and beautiful product posts, there is no website or payment link — every interested buyer must DM to buy, losing most impulse purchases."). Be very specific. Do NOT be generic.
-3. "coldCallOpener": A natural, warm, 2-sentence cold call opener. Use their first name if available. Reference something SPECIFIC you noticed about their business. End with an open-ended hook — do NOT pitch or mention website yet. Sound like a human who did their homework.
-4. "conversationHooks": An array of exactly 4 open-ended questions to ask during the call. These should feel like genuine curiosity that keeps the prospect talking and helps you understand their situation. Focus on: how they handle inquiries/orders, what their biggest growth challenge is, how customers currently find them outside Instagram, and what their dream flow would look like.
-5. "objectionHandlers": An array of exactly 3 objects with keys "objection" and "response". Cover these three scenarios:
-   a) Cost objection ("It's too expensive" / "hum afford nahi kar sakte")
-   b) Need objection ("Instagram is enough for us")
-   c) Timing objection ("We'll think about it" / "Later")
-   Responses should be empathetic, confident, and redirect back to their specific pain.
+Provide a JSON response with the following keys:
+1. "category": Highly specific niche description.
+2. "painPoints": Array of strings identifying technical/business gaps.
+3. "coldMessage": A personalized, high-conversion DM/Email opener in **English**.
+4. "hinglishMessage": The same message translated into **Hinglish** (a natural mix of Hindi and English as spoken in urban India). It should feel warm and "Desi".
+5. "icebreaker": A 1-sentence opening line in English based on a specific detail from their profile to build trust.
+6. "hinglishIcebreaker": The same icebreaker in **Hinglish**.
+7. "coldCallOpener": A 2-sentence script for a voice call.
+8. "conversationHooks": Minimum 3 personalized "Value-First" hooks.
+9. "engagementAnalysis": Analysis of audience interaction.
+10. "estimatedProjectValue": Realistic USD price range.
+11. "projectValueINR": A realistic estimation of the project's worth in **Indian Rupees (INR)** based on Indian agency/freelancer market rates. (Integer only).
+12. "opportunityCost": A "Burning House" stat for the Indian context (e.g., "Missing out on ~₹40,000 monthly due to lacked booking system").
+13. "personalityVibe": An estimate of their business personality (e.g., "Professional & Direct", "Creative & High-Energy", "Trust-Oriented Local Traditional").
+14. "bestTimeToCall": The best day and time window to call (e.g., "Tuesday between 11:30 AM - 1:00 PM").
+15. "whatsappScript": A very short, punchy, and highly informal **Hinglish** WhatsApp message (max 15 words) that breaks the ice. Mention a specific detail from their bio.
+16. "followUpStrategy": A 1-sentence instruction on when and how to follow up if they don't respond to the first message.
+17. "estimatedAnnualROI": An estimation of how much additional revenue this business could generate annually with your services (in INR, e.g., "₹5,00,000+ yearly").
+18. "indianStrategy": A specific "Wedge" to use for Indian clients (e.g., "Focus on how this beats their direct local competitor X" or "Emphasize zero-maintenance and long-term ROI").
+19. "contentStrategy": Array of 3 specific content ideas.
+20. "objectionHandlers": Array of objects {"objection", "response"}. Focus on Indian concerns like "Price is too high" or "I'll do it later".
+21. "conversionChance": Number (0-100).
+22. "leadScore": Number (0-100) - Overall quality score.
+23. "outreachPriority": "High", "Medium", or "Low".
+24. "qualityGrade": Letter grade (A, B, C, D).
+25. "strategicRationale": Reasoning for grade/chance and why this specific lead is worth the local outreach effort.
 
-Context: This is an Indian small business. They think in ROI. Never sell "beautiful websites" — sell "more customers, less manual work, 24/7 online presence". Keep all language direct and relatable.
-
-Respond ONLY with valid JSON. Do not include markdown \`\`\`json wrappers.
+Respond ONLY with valid JSON.
 {
   "category": "...",
-  "painPoints": ["...", "...", "..."],
+  "painPoints": ["...", "..."],
+  "coldMessage": "...",
+  "hinglishMessage": "...",
+  "icebreaker": "...",
+  "hinglishIcebreaker": "...",
   "coldCallOpener": "...",
-  "conversationHooks": ["...", "...", "...", "..."],
-  "objectionHandlers": [
-    { "objection": "...", "response": "..." },
-    { "objection": "...", "response": "..." },
-    { "objection": "...", "response": "..." }
-  ]
+  "conversationHooks": ["...", "..."],
+  "engagementAnalysis": "...",
+  "estimatedProjectValue": "...",
+  "projectValueINR": 45000,
+  "opportunityCost": "...",
+  "personalityVibe": "...",
+  "bestTimeToCall": "...",
+  "whatsappScript": "...",
+  "followUpStrategy": "...",
+  "estimatedAnnualROI": "...",
+  "indianStrategy": "...",
+  "contentStrategy": ["...", "..."],
+  "objectionHandlers": [{"objection": "...", "response": "..."}],
+  "conversionChance": 85,
+  "leadScore": 92,
+  "outreachPriority": "High",
+  "qualityGrade": "A",
+  "strategicRationale": "..."
 }
 `;
 
-        console.log(`[ANALYZE] Calling Gemini API (gemini-2.0-flash)...`);
+        // --- GEMINI (commented out) ---
+        // console.log(`[ANALYZE] Calling Gemini API (gemini-2.0-flash)...`);
+        // const response = await ai.models.generateContent({
+        //     model: 'gemini-2.0-flash',
+        //     contents: prompt,
+        //     config: {
+        //          responseMimeType: "application/json",
+        //     }
+        // });
+        // const jsonText = response.text;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash',
-            contents: prompt,
-            config: {
-                 responseMimeType: "application/json",
-            }
-        });
+        // --- OPENROUTER SDK WITH FALLBACK ---
+        console.log(`[ANALYZE] Calling OpenRouter with fallback for @${lead.username}...`);
+        const jsonText = await callAIWithFallback(prompt, openRouter);
 
-        const jsonText = response.text;
-        console.log(`[ANALYZE] Raw Gemini response (first 500 chars):`, jsonText?.substring(0, 500));
+        console.log(`[ANALYZE] Raw OpenRouter response (first 500 chars):`, jsonText?.substring(0, 500));
 
         if (!jsonText || jsonText.trim() === '' || jsonText.trim() === '{}') {
-            console.error('[ANALYZE] Gemini returned empty or null response');
+            console.error('[ANALYZE] OpenRouter returned empty or null response');
             return NextResponse.json({ error: 'AI returned an empty response. Please try again.' }, { status: 502 });
         }
 
@@ -91,7 +204,7 @@ Respond ONLY with valid JSON. Do not include markdown \`\`\`json wrappers.
         try {
             analysis = JSON.parse(jsonText);
         } catch (parseError: any) {
-            console.error('[ANALYZE] Failed to parse Gemini JSON:', parseError.message);
+            console.error('[ANALYZE] Failed to parse OpenRouter JSON:', parseError.message);
             console.error('[ANALYZE] Raw text was:', jsonText);
             return NextResponse.json({ error: 'AI returned invalid JSON. Please try again.' }, { status: 502 });
         }
@@ -106,10 +219,30 @@ Respond ONLY with valid JSON. Do not include markdown \`\`\`json wrappers.
 
         lead.aiAnalysis = {
             category: analysis.category,
-            painPoints: analysis.painPoints,
-            coldCallOpener: analysis.coldCallOpener,
-            conversationHooks: analysis.conversationHooks,
-            objectionHandlers: analysis.objectionHandlers,
+            painPoints: analysis.painPoints || [],
+            coldMessage: analysis.coldMessage,
+            hinglishMessage: analysis.hinglishMessage,
+            icebreaker: analysis.icebreaker,
+            hinglishIcebreaker: analysis.hinglishIcebreaker,
+            coldCallOpener: analysis.coldCallOpener, // Added
+            conversationHooks: analysis.conversationHooks || [], // Added
+            engagementAnalysis: analysis.engagementAnalysis, // Added
+            opportunityCost: analysis.opportunityCost, // Added
+            personalityVibe: analysis.personalityVibe, // Added
+            whatsappScript: analysis.whatsappScript,
+            followUpStrategy: analysis.followUpStrategy,
+            estimatedAnnualROI: analysis.estimatedAnnualROI,
+            estimatedProjectValue: analysis.estimatedProjectValue,
+            projectValueINR: analysis.projectValueINR,
+            bestTimeToCall: analysis.bestTimeToCall,
+            indianStrategy: analysis.indianStrategy,
+            contentStrategy: analysis.contentStrategy || [],
+            objectionHandlers: analysis.objectionHandlers || [],
+            conversionChance: analysis.conversionChance,
+            leadScore: analysis.leadScore,
+            outreachPriority: analysis.outreachPriority,
+            qualityGrade: analysis.qualityGrade,
+            strategicRationale: analysis.strategicRationale,
             analyzedAt: new Date()
         };
 
@@ -123,7 +256,7 @@ Respond ONLY with valid JSON. Do not include markdown \`\`\`json wrappers.
         // Check for quota/rate limit errors
         if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('rate limit') || error.status === 429) {
             return NextResponse.json({ 
-                error: 'Gemini API rate limit hit. Wait a minute and try again.' 
+                error: 'OpenRouter API rate limit hit. Wait a minute and try again.' 
             }, { status: 429 });
         }
         
