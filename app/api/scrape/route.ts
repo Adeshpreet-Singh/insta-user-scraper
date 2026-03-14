@@ -11,13 +11,6 @@ export const maxDuration = 300; // 5 min timeout for long scrapes
  */
 const FREE_MODELS = [
     'openrouter/hunter-alpha',
-    'openrouter/healer-alpha',
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'google/gemma-3-27b-it:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free',
-    'google/gemma-3-12b-it:free',
-    'meta-llama/llama-3.2-3b-instruct:free',
-    'stepfun/step-3.5-flash:free',
 ];
 
 function cleanJSON(text: string): string {
@@ -65,33 +58,43 @@ Analyze the following Instagram profile based on its scraped data:
 - Username: ${lead.username}
 - Full Name: ${lead.fullName || 'N/A'}
 - Followers: ${lead.followersCount || 'Unknown'}
+- Following: ${lead.followsCount || 'Unknown'}
+- Posts: ${lead.postsCount || 'Unknown'}
 - Category: ${lead.businessCategoryName || 'Unknown'}
+- Email: ${lead.biographyEmail || 'Not explicitly provided'}
+- Phone: ${lead.biographyPhone || 'Not explicitly provided'}
 - URL in Bio: ${lead.url || 'None'}
-- External URLs: ${lead.externalUrls ? lead.externalUrls.map((u: any) => u.url).join(', ') : 'None'}
+- External URLs: ${lead.externalUrls && lead.externalUrls.length > 0 ? lead.externalUrls.map((u: any) => u.url).join(', ') : 'None'}
 - Biography: ${lead.biography || 'None'}
 
 Target their specific pain points and offer immediate value. Use a friendly but professional tone.
 
 Provide a JSON response with the following strictly formatted keys:
-1. "category": A highly specific description of their niche.
-2. "painPoints": A detailed array of strings identifying technical and business optimization needs.
+1. "category": Highly specific niche description.
+2. "painPoints": Array of strings identifying technical/business gaps.
 3. "coldMessage": A personalized, high-conversion DM/Email opener in **English**.
-4. "hinglishMessage": The same message translated into **Hinglish** (warm and "Desi").
-5. "icebreaker": A 1-sentence opening line in English to build trust.
+4. "hinglishMessage": The same message translated into **Hinglish** (natural mix of Hindi and English).
+5. "icebreaker": A 1-sentence opening line in English based on a specific detail.
 6. "hinglishIcebreaker": The same icebreaker in **Hinglish**.
-7. "whatsappScript": A very short, punchy **Hinglish** WhatsApp message (max 15 words) that breaks the ice.
-8. "followUpStrategy": A 1-sentence instruction on when and how to follow up.
-9. "estimatedAnnualROI": Estimation of additional revenue annually (in INR, e.g., "₹5,00,000+ yearly").
-10. "engagementAnalysis": A brief analysis of their current audience interaction.
-11. "estimatedProjectValue": A realistic USD price range for services.
-12. "projectValueINR": Estimated project worth in **INR** (Integer only).
-13. "bestTimeToCall": Best day and time window to call (e.g., "Tuesday 11:30 AM").
-14. "indianStrategy": A specific "Wedge" to use for Indian clients.
-15. "contentStrategy": An array of 3 specific content ideas.
-16. "objectionHandlers": Array of objects {"objection", "response"}. Focus on Indian concerns.
-17. "conversionChance": Number (0-100).
-18. "qualityGrade": Letter grade (A-D).
-19. "strategicRationale": Reasoning for grade/chance.
+7. "coldCallOpener": A 2-sentence script for a voice call.
+8. "conversationHooks": Minimum 3 personalized "Value-First" hooks.
+9. "engagementAnalysis": Analysis of audience interaction.
+10. "estimatedProjectValue": Realistic USD price range.
+11. "projectValueINR": Estimated project worth in **Indian Rupees (INR)**. (Integer only).
+12. "opportunityCost": A "Burning House" stat for the Indian context (e.g., "Missing out on ~₹40,000 monthly").
+13. "personalityVibe": Estimate of their business personality.
+14. "bestTimeToCall": Best day and time window to call.
+15. "whatsappScript": Short, punchy, informal **Hinglish** WhatsApp message (max 15 words).
+16. "followUpStrategy": 1-sentence instruction on when and how to follow up.
+17. "estimatedAnnualROI": Estimation of additional revenue annually (in INR).
+18. "indianStrategy": A specific "Wedge" to use for Indian clients.
+19. "contentStrategy": Array of 3 specific content ideas.
+20. "objectionHandlers": Array of objects {"objection", "response"}. Focus on Indian concerns.
+21. "conversionChance": Number (0-100).
+22. "leadScore": Number (0-100) - Overall quality score.
+23. "outreachPriority": "High", "Medium", or "Low".
+24. "qualityGrade": Letter grade (A, B, C, D).
+25. "strategicRationale": Reasoning for the grade and chance.
 
 Respond ONLY with valid JSON.
 {
@@ -101,17 +104,23 @@ Respond ONLY with valid JSON.
   "hinglishMessage": "...",
   "icebreaker": "...",
   "hinglishIcebreaker": "...",
+  "coldCallOpener": "...",
+  "conversationHooks": ["...", "..."],
+  "engagementAnalysis": "...",
+  "estimatedProjectValue": "...",
+  "projectValueINR": 45000,
+  "opportunityCost": "...",
+  "personalityVibe": "...",
+  "bestTimeToCall": "...",
   "whatsappScript": "...",
   "followUpStrategy": "...",
   "estimatedAnnualROI": "...",
-  "engagementAnalysis": "...",
-  "estimatedProjectValue": "...",
-  "projectValueINR": 50000,
-  "bestTimeToCall": "...",
   "indianStrategy": "...",
   "contentStrategy": ["...", "..."],
   "objectionHandlers": [{"objection": "...", "response": "..."}],
   "conversionChance": 85,
+  "leadScore": 92,
+  "outreachPriority": "High",
   "qualityGrade": "A",
   "strategicRationale": "..."
 }
@@ -220,10 +229,14 @@ export async function POST(request: Request) {
                                     hinglishMessage: analysis.hinglishMessage,
                                     icebreaker: analysis.icebreaker,
                                     hinglishIcebreaker: analysis.hinglishIcebreaker,
+                                    coldCallOpener: analysis.coldCallOpener,
+                                    conversationHooks: analysis.conversationHooks || [],
+                                    engagementAnalysis: analysis.engagementAnalysis,
+                                    opportunityCost: analysis.opportunityCost,
+                                    personalityVibe: analysis.personalityVibe,
                                     whatsappScript: analysis.whatsappScript,
                                     followUpStrategy: analysis.followUpStrategy,
                                     estimatedAnnualROI: analysis.estimatedAnnualROI,
-                                    engagementAnalysis: analysis.engagementAnalysis,
                                     estimatedProjectValue: analysis.estimatedProjectValue,
                                     projectValueINR: analysis.projectValueINR,
                                     bestTimeToCall: analysis.bestTimeToCall,
@@ -231,6 +244,8 @@ export async function POST(request: Request) {
                                     contentStrategy: analysis.contentStrategy || [],
                                     objectionHandlers: analysis.objectionHandlers || [],
                                     conversionChance: analysis.conversionChance,
+                                    leadScore: analysis.leadScore,
+                                    outreachPriority: analysis.outreachPriority,
                                     qualityGrade: analysis.qualityGrade,
                                     strategicRationale: analysis.strategicRationale,
                                     analyzedAt: new Date(),

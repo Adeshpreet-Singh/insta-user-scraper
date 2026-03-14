@@ -110,23 +110,24 @@ async function backfill() {
             lead.aiAnalysis = {} as any;
         }
 
+        const aiAnalysis = lead.aiAnalysis!;
         let changed = false;
 
         // Backfill engagementAnalysis
-        if (record['Engagement Analysis'] && !lead.aiAnalysis.engagementAnalysis) {
-            lead.aiAnalysis.engagementAnalysis = record['Engagement Analysis'];
+        if (record['Engagement Analysis'] && !aiAnalysis.engagementAnalysis) {
+            aiAnalysis.engagementAnalysis = record['Engagement Analysis'];
             changed = true;
         }
 
         // Backfill estimatedProjectValue
-        if (record['Estimated Project Value'] && !lead.aiAnalysis.estimatedProjectValue) {
-            lead.aiAnalysis.estimatedProjectValue = record['Estimated Project Value'];
+        if (record['Estimated Project Value'] && !aiAnalysis.estimatedProjectValue) {
+            aiAnalysis.estimatedProjectValue = record['Estimated Project Value'];
             changed = true;
         }
 
         // Backfill contentStrategy
-        if (record['Content Strategy'] && (!lead.aiAnalysis.contentStrategy || lead.aiAnalysis.contentStrategy.length === 0)) {
-            lead.aiAnalysis.contentStrategy = record['Content Strategy']
+        if (record['Content Strategy'] && (!aiAnalysis.contentStrategy || aiAnalysis.contentStrategy.length === 0)) {
+            aiAnalysis.contentStrategy = record['Content Strategy']
                 .split(' | ')
                 .map(s => s.trim())
                 .filter(s => s.length > 0);

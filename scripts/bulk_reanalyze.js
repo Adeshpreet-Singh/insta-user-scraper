@@ -31,11 +31,6 @@ const Lead = mongoose.models.Lead || mongoose.model('Lead', leadSchema);
 
 const FREE_MODELS = [
     'openrouter/hunter-alpha',
-    'openrouter/healer-alpha',
-    'google/gemma-3-27b-it:free',
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free',
-    'google/gemini-2.0-flash-exp:free',
 ];
 
 function cleanJSON(text) {

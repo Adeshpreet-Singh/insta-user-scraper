@@ -12,13 +12,6 @@ export const dynamic = 'force-dynamic';
  */
 const FREE_MODELS = [
     'openrouter/hunter-alpha',
-    'openrouter/healer-alpha',
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'google/gemma-3-27b-it:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free',
-    'google/gemma-3-12b-it:free',
-    'meta-llama/llama-3.2-3b-instruct:free',
-    'stepfun/step-3.5-flash:free',
 ];
 
 /**
@@ -122,36 +115,51 @@ Analyze the following Instagram profile and craft a strategy that "cracks" the I
 - Biography: ${lead.biography || 'None'}
 
 Provide a JSON response with the following keys:
-1. "category": Highly specific niche description.
-2. "painPoints": Array of strings identifying technical/business gaps.
-3. "coldMessage": A personalized, high-conversion DM/Email opener in **English**.
-4. "hinglishMessage": The same message translated into **Hinglish** (a natural mix of Hindi and English as spoken in urban India). It should feel warm and "Desi".
-5. "icebreaker": A 1-sentence opening line in English based on a specific detail from their profile to build trust.
-6. "hinglishIcebreaker": The same icebreaker in **Hinglish**.
-7. "coldCallOpener": A 2-sentence script for a voice call.
-8. "conversationHooks": Minimum 3 personalized "Value-First" hooks.
-9. "engagementAnalysis": Analysis of audience interaction.
-10. "estimatedProjectValue": Realistic USD price range.
-11. "projectValueINR": A realistic estimation of the project's worth in **Indian Rupees (INR)** based on Indian agency/freelancer market rates. (Integer only).
-12. "opportunityCost": A "Burning House" stat for the Indian context (e.g., "Missing out on ~₹40,000 monthly due to lacked booking system").
-13. "personalityVibe": An estimate of their business personality (e.g., "Professional & Direct", "Creative & High-Energy", "Trust-Oriented Local Traditional").
-14. "bestTimeToCall": The best day and time window to call (e.g., "Tuesday between 11:30 AM - 1:00 PM").
-15. "whatsappScript": A very short, punchy, and highly informal **Hinglish** WhatsApp message (max 15 words) that breaks the ice. Mention a specific detail from their bio.
-16. "followUpStrategy": A 1-sentence instruction on when and how to follow up if they don't respond to the first message.
-17. "estimatedAnnualROI": An estimation of how much additional revenue this business could generate annually with your services (in INR, e.g., "₹5,00,000+ yearly").
-18. "indianStrategy": A specific "Wedge" to use for Indian clients (e.g., "Focus on how this beats their direct local competitor X" or "Emphasize zero-maintenance and long-term ROI").
-19. "contentStrategy": Array of 3 specific content ideas.
-20. "objectionHandlers": Array of objects {"objection", "response"}. Focus on Indian concerns like "Price is too high" or "I'll do it later".
-21. "conversionChance": Number (0-100).
-22. "leadScore": Number (0-100) - Overall quality score.
-23. "outreachPriority": "High", "Medium", or "Low".
-24. "qualityGrade": Letter grade (A, B, C, D).
-25. "strategicRationale": Reasoning for grade/chance and why this specific lead is worth the local outreach effort.
+1. "category": Highly specific business category.
+2. "niche": Micro-niche identification (e.g., "Premium Vegan Skincare for Gen-Z in Bangalore").
+3. "painPoints": Array of strings identifying technical/business gaps.
+4. "marketContext": Brief 1-2 sentence overview of their specific market position in India.
+5. "growthOpportunity": The #1 biggest growth lever they are missing.
+6. "perceivedValue": How premium or value-driven their brand is perceived (e.g., "High-end luxury", "Mass-market budget").
+7. "riskFactors": Potential pitfalls or challenges in working with them.
+8. "competitorEdge": What gives them an advantage over others?
+9. "coldMessage": A personalized, high-conversion DM/Email opener in **English**.
+10. "hinglishMessage": The same message translated into **Hinglish**.
+11. "icebreaker": A 1-sentence opening line in English.
+12. "hinglishIcebreaker": The same icebreaker in **Hinglish**.
+13. "coldCallOpener": A 2-sentence script for a voice call.
+14. "conversationHooks": Minimum 3 "Value-First" hooks.
+15. "engagementAnalysis": Analysis of audience interaction.
+16. "estimatedProjectValue": Realistic USD price range.
+17. "projectValueINR": Estimated project worth in INR (Integer only).
+18. "opportunityCost": A "Burning House" stat for the Indian context.
+19. "personalityVibe": Their business personality.
+20. "bestTimeToCall": Best day and time window for India.
+21. "whatsappScript": Short, punchy Hinglish message.
+22. "followUpStrategy": 1-sentence instruction.
+23. "estimatedAnnualROI": Estimated revenue they are missing out on (in INR).
+24. "indianStrategy": A specific "Wedge".
+25. "instagramStrategy": Long-term Instagram growth/monetization strategy.
+26. "contentStrategy": Array of 3 specific content ideas.
+27. "engagementPlan": Specifically how to interact with their followers to generate leads.
+28. "estimatedDealValue": How much this deal could be worth to YOUR agency/business.
+29. "objectionHandlers": Array of objects {"objection", "response"}.
+30. "conversionChance": Number (0-100).
+31. "leadScore": Number (0-100).
+32. "outreachPriority": "High", "Medium", or "Low".
+33. "qualityGrade": Letter grade (A, B, C, D).
+34. "strategicRationale": Reasoning for the grade and outreach fit.
 
 Respond ONLY with valid JSON.
 {
   "category": "...",
+  "niche": "...",
   "painPoints": ["...", "..."],
+  "marketContext": "...",
+  "growthOpportunity": "...",
+  "perceivedValue": "...",
+  "riskFactors": "...",
+  "competitorEdge": "...",
   "coldMessage": "...",
   "hinglishMessage": "...",
   "icebreaker": "...",
@@ -168,7 +176,10 @@ Respond ONLY with valid JSON.
   "followUpStrategy": "...",
   "estimatedAnnualROI": "...",
   "indianStrategy": "...",
+  "instagramStrategy": "...",
   "contentStrategy": ["...", "..."],
+  "engagementPlan": "...",
+  "estimatedDealValue": "...",
   "objectionHandlers": [{"objection": "...", "response": "..."}],
   "conversionChance": 85,
   "leadScore": 92,
@@ -219,16 +230,22 @@ Respond ONLY with valid JSON.
 
         lead.aiAnalysis = {
             category: analysis.category,
+            niche: analysis.niche,
             painPoints: analysis.painPoints || [],
+            marketContext: analysis.marketContext,
+            growthOpportunity: analysis.growthOpportunity,
+            perceivedValue: analysis.perceivedValue,
+            riskFactors: analysis.riskFactors,
+            competitorEdge: analysis.competitorEdge,
             coldMessage: analysis.coldMessage,
             hinglishMessage: analysis.hinglishMessage,
             icebreaker: analysis.icebreaker,
             hinglishIcebreaker: analysis.hinglishIcebreaker,
-            coldCallOpener: analysis.coldCallOpener, // Added
-            conversationHooks: analysis.conversationHooks || [], // Added
-            engagementAnalysis: analysis.engagementAnalysis, // Added
-            opportunityCost: analysis.opportunityCost, // Added
-            personalityVibe: analysis.personalityVibe, // Added
+            coldCallOpener: analysis.coldCallOpener,
+            conversationHooks: analysis.conversationHooks || [],
+            engagementAnalysis: analysis.engagementAnalysis,
+            opportunityCost: analysis.opportunityCost,
+            personalityVibe: analysis.personalityVibe,
             whatsappScript: analysis.whatsappScript,
             followUpStrategy: analysis.followUpStrategy,
             estimatedAnnualROI: analysis.estimatedAnnualROI,
@@ -236,7 +253,10 @@ Respond ONLY with valid JSON.
             projectValueINR: analysis.projectValueINR,
             bestTimeToCall: analysis.bestTimeToCall,
             indianStrategy: analysis.indianStrategy,
+            instagramStrategy: analysis.instagramStrategy,
             contentStrategy: analysis.contentStrategy || [],
+            engagementPlan: analysis.engagementPlan,
+            estimatedDealValue: analysis.estimatedDealValue,
             objectionHandlers: analysis.objectionHandlers || [],
             conversionChance: analysis.conversionChance,
             leadScore: analysis.leadScore,

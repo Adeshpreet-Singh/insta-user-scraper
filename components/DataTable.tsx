@@ -22,6 +22,10 @@ interface InstagramProfile {
     updatedAt?: string | Date;
     aiAnalysis?: {
         category?: string;
+        microNiche?: string;
+        marketContext?: string;
+        revenueEstimation?: string;
+        competitionAnalysis?: string;
         painPoints?: string[];
         coldMessage?: string;
         hinglishMessage?: string;
@@ -40,10 +44,14 @@ interface InstagramProfile {
         opportunityCost?: string;
         personalityVibe?: string;
         contentStrategy?: string[];
+        visualStrategy?: string;
+        roadmap?: string;
+        growthHacks?: string[];
+        highTicketHooks?: string[];
         objectionHandlers?: { objection: string; response: string }[];
         conversionChance?: number;
         qualityGrade?: string;
-        rationale?: string;
+        strategicRationale?: string;
         leadScore?: number;
         outreachPriority?: string;
         analyzedAt?: string | Date;
@@ -138,9 +146,9 @@ export default function DataTable({ data: initialData }: DataTableProps) {
             coldMessage?: string;
             conversionChance?: number;
             qualityGrade?: string;
-            rationale?: string;
             strategicRationale?: string;
             hinglishMessage?: string;
+            icebreaker?: string;
             hinglishIcebreaker?: string;
             indianStrategy?: string;
             whatsappScript?: string;
@@ -151,6 +159,7 @@ export default function DataTable({ data: initialData }: DataTableProps) {
             outreachPriority?: string;
             bestTimeToCall?: string;
             opportunityCost?: string;
+            personalityVibe?: string;
             status?: string;
             privateNotes?: string;
         };
@@ -1010,25 +1019,32 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                         Cold Call Kit
                                     </h3>
                                     <div className="flex items-center gap-3">
-                                        {analysisModal.data.category && (
-                                            <span className="text-xs font-bold uppercase tracking-wider bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-3 py-1.5 rounded-full">
-                                                {analysisModal.data.category}
-                                            </span>
+                                        {analysisModal.data?.category && (
+                                            <div className="bg-slate-800/20 border border-slate-700/30 rounded-2xl p-4">
+                                                <h4 className="text-[10px] uppercase font-black tracking-widest text-slate-500 mb-2">Lead Category</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-2 h-2 rounded-full bg-slate-500" />
+                                                    <p className="text-sm font-bold text-slate-200">{analysisModal.data?.category}</p>
+                                                </div>
+                                            </div>
                                         )}
-                                        {analysisModal.data.qualityGrade && (
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${
+                                        {analysisModal.data?.qualityGrade && (
+                                            <div className="bg-slate-800/20 border border-slate-700/30 rounded-2xl p-4">
+                                                <h4 className="text-[10px] uppercase font-black tracking-widest text-slate-500 mb-2">Profile Grade</h4>
+                                                <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase inline-block ${
                                                     analysisModal.data.qualityGrade.startsWith('A') ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
                                                     analysisModal.data.qualityGrade.startsWith('B') ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                                                    'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                                    analysisModal.data.qualityGrade.startsWith('C') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                                                    'bg-slate-500/20 text-slate-400 border border-slate-500/30'
                                                 }`}>
                                                     Grade {analysisModal.data.qualityGrade}
-                                                </span>
-                                                {analysisModal.data.conversionChance !== undefined && (
-                                                    <span className="text-xs font-bold text-slate-400 bg-slate-800/50 px-2 py-1.5 rounded-full border border-slate-700/50">
-                                                        {analysisModal.data.conversionChance}% Win
-                                                    </span>
-                                                )}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {analysisModal.data?.conversionChance !== undefined && (
+                                            <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-2xl p-4">
+                                                <h4 className="text-[10px] uppercase font-black tracking-widest text-indigo-500 mb-2">Win Probability</h4>
+                                                <p className="text-sm text-indigo-200/80 font-bold">{analysisModal.data.conversionChance}% Win</p>
                                             </div>
                                         )}
                                         <button onClick={() => setAnalysisModal({ isOpen: false })} className="text-slate-500 hover:text-white transition-colors">
@@ -1046,12 +1062,12 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                         </h4>
                                         <div className="flex items-center gap-3">
                                             <select 
-                                                value={analysisModal.data.status || 'New'}
+                                                value={analysisModal.data?.status || 'New'}
                                                 onChange={(e) => handleUpdateLead(analysisModal.data!.id, { status: e.target.value as any })}
                                                 className={`text-xs font-black uppercase tracking-wider px-3 py-1.5 rounded-xl border appearance-none cursor-pointer transition-all ${
-                                                    analysisModal.data.status === 'Closed Won' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                                                    analysisModal.data.status === 'Closed Lost' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
-                                                    analysisModal.data.status === 'Proposal Sent' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
+                                                    analysisModal.data?.status === 'Closed Won' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                                                    analysisModal.data?.status === 'Closed Lost' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
+                                                    analysisModal.data?.status === 'Proposal Sent' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' :
                                                     'bg-slate-700/50 border-slate-600 text-slate-300'
                                                 }`}
                                             >
@@ -1065,7 +1081,7 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                     <div className="relative">
                                         <textarea
                                             placeholder="Write internal notes about this lead... (e.g. key interactions, specific needs, hurdles)"
-                                            defaultValue={analysisModal.data.privateNotes || ''}
+                                            defaultValue={analysisModal.data?.privateNotes || ''}
                                             onBlur={(e) => {
                                                 if (e.target.value !== analysisModal.data?.privateNotes) {
                                                     handleUpdateLead(analysisModal.data!.id, { privateNotes: e.target.value });
@@ -1079,25 +1095,24 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                     </div>
                                 </div>
 
-                                {/* Lead Score Rationale */}
-                                {analysisModal.data.rationale && (
+                                {analysisModal.data?.strategicRationale && (
                                     <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
                                         <h4 className="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-2 flex items-center gap-2">
                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                             AI Qualification Rationale
                                         </h4>
-                                        <p className="text-sm text-slate-300 italic leading-relaxed">"{analysisModal.data.rationale}"</p>
+                                        <p className="text-sm text-slate-300 italic leading-relaxed">"{analysisModal.data?.strategicRationale}"</p>
                                     </div>
                                 )}
 
                                 {/* Generated DM */}
-                                {analysisModal.data.coldMessage && (
+                                {analysisModal.data?.coldMessage && (
                                     <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-2xl p-5 relative group">
                                         <div className="absolute -top-3 left-6 px-3 py-1 bg-indigo-600 text-[10px] font-black uppercase tracking-tighter text-white rounded-full shadow-lg">
                                             Ready-to-Send DM
                                         </div>
                                         <div className="mt-2">
-                                            <p className="text-base text-slate-100 leading-relaxed font-medium whitespace-pre-wrap">{analysisModal.data.coldMessage}</p>
+                                            <p className="text-base text-slate-100 leading-relaxed font-medium whitespace-pre-wrap">{analysisModal.data?.coldMessage}</p>
                                         </div>
                                         <div className="mt-4 flex justify-end">
                                             <button
@@ -1122,14 +1137,14 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                 )}
 
                                 {/* Hinglish Pitch (Indian Special) */}
-                                {analysisModal.data.hinglishMessage && (
+                                {analysisModal.data?.hinglishMessage && (
                                     <div className="bg-gradient-to-br from-orange-500/10 to-emerald-500/10 border border-orange-500/20 rounded-2xl p-5 relative group">
                                         <div className="absolute -top-3 left-6 px-3 py-1 bg-orange-600 text-[10px] font-black uppercase tracking-tighter text-white rounded-full shadow-lg flex items-center gap-2">
                                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" /></svg>
                                             Indian Market Special (Hinglish)
                                         </div>
                                         <div className="mt-2">
-                                            <p className="text-base text-slate-100 leading-relaxed font-medium whitespace-pre-wrap">{analysisModal.data.hinglishMessage}</p>
+                                            <p className="text-base text-slate-100 leading-relaxed font-medium whitespace-pre-wrap">{analysisModal.data?.hinglishMessage}</p>
                                         </div>
                                         <div className="mt-4 flex justify-end">
                                             <button
@@ -1154,78 +1169,60 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                 )}
 
                                 {/* Pain Points */}
-                                {analysisModal.data.painPoints && analysisModal.data.painPoints.length > 0 && (
-                                    <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-6">
-                                        <h4 className="text-xs uppercase font-black tracking-widest text-rose-400 mb-4 flex items-center gap-2">
-                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                                            Critical Pain Points Identified ({analysisModal.data.painPoints.length})
-                                        </h4>
-                                        <div className="space-y-3">
+                                {analysisModal.data?.painPoints && analysisModal.data.painPoints.length > 0 && (
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                            </div>
+                                            <h3 className="text-sm font-black text-slate-100 uppercase tracking-widest">
+                                                Critical Pain Points Identified ({analysisModal.data.painPoints.length})
+                                            </h3>
+                                        </div>
+                                        <div className="grid gap-3">
                                             {analysisModal.data.painPoints.map((point: string, i: number) => (
-                                                <div key={i} className="flex items-start gap-4">
-                                                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-rose-500/20 text-rose-400 text-xs font-black flex items-center justify-center mt-1">{i + 1}</span>
-                                                    <p className="text-base text-slate-200 leading-relaxed font-medium">{point}</p>
+                                                <div key={i} className="flex items-start gap-3 p-4 bg-slate-800/40 border border-slate-700/50 rounded-2xl group hover:border-rose-500/30 transition-all">
+                                                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 group-hover:scale-125 transition-transform" />
+                                                    <p className="text-sm text-slate-300 font-medium leading-relaxed">{point}</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 )}
 
-                                {/* Cold Call Opener */}
-                                {analysisModal.data.coldCallOpener && (
-                                    <div>
-                                        <h4 className="text-[10px] uppercase font-black tracking-widest text-blue-400 mb-3 flex items-center gap-2">
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
+                                {analysisModal.data?.coldCallOpener && (
+                                    <div className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-6 relative group">
+                                        <div className="absolute -top-3 left-6 px-3 py-1 bg-blue-600 text-[10px] font-black uppercase text-white rounded-full shadow-lg">
                                             Cold Call Opener
-                                        </h4>
-                                        <div className="relative group">
-                                            <p className="text-sm text-slate-200 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 italic leading-relaxed pr-24">{analysisModal.data.coldCallOpener}</p>
-                                            <button
-                                                onClick={(e) => {
-                                                    navigator.clipboard.writeText(analysisModal.data?.coldCallOpener || '');
-                                                    const btn = e.currentTarget;
-                                                    const orig = btn.innerText;
-                                                    btn.innerText = 'Copied!';
-                                                    setTimeout(() => { btn.innerText = orig; }, 2000);
-                                                }}
-                                                className="absolute top-3 right-3 text-xs font-bold uppercase tracking-wider bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-md transition-colors shadow-lg opacity-0 group-hover:opacity-100"
-                                            >Copy</button>
                                         </div>
+                                        <p className="text-sm text-slate-200 bg-blue-500/5 border border-blue-500/15 rounded-xl p-4 italic leading-relaxed pr-24">{analysisModal.data.coldCallOpener}</p>
+                                        <button
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(analysisModal.data?.coldCallOpener || '');
+                                            }}
+                                            className="absolute top-8 right-8 text-[10px] font-black uppercase bg-slate-900 text-slate-400 px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all border border-slate-700 shadow-xl hover:text-white"
+                                        >Copy Script</button>
                                     </div>
                                 )}
 
-                                {/* Conversation Hooks */}
-                                {analysisModal.data.conversationHooks && analysisModal.data.conversationHooks.length > 0 && (
-                                    <div>
-                                        <h4 className="text-[10px] uppercase font-black tracking-widest text-emerald-400 mb-3 flex items-center gap-2">
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                            Conversation Hooks — Ask These
-                                        </h4>
-                                        <div className="space-y-2">
+                                {analysisModal.data?.conversationHooks && analysisModal.data.conversationHooks.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1">Engagement Hooks</h4>
+                                        <div className="grid gap-3">
                                             {analysisModal.data.conversationHooks.map((hook: string, i: number) => (
-                                                <div key={i} className="flex items-start gap-3 bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-3 group/hook">
-                                                    <span className="flex-shrink-0 text-emerald-500 mt-0.5">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                                                    </span>
-                                                    <p className="text-sm text-slate-300 leading-relaxed flex-1">{hook}</p>
-                                                    <button
-                                                        onClick={() => navigator.clipboard.writeText(hook)}
-                                                        className="flex-shrink-0 opacity-0 group-hover/hook:opacity-100 transition-opacity text-slate-500 hover:text-emerald-400"
-                                                        title="Copy this question"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                                    </button>
-                                                </div>
+                                                <button key={i} className="text-left p-4 bg-slate-950/40 border border-slate-800/80 rounded-2xl text-slate-300 text-sm font-medium hover:bg-slate-800/40 hover:border-slate-700 transition-all active:scale-[0.98]">
+                                                    {hook}
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
                                 )}
 
-                                {analysisModal.data.engagementAnalysis && (
-                                    <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-6 mb-8">
-                                        <h4 className="text-[10px] uppercase font-black tracking-widest text-cyan-400 mb-2 flex items-center gap-2">
-                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                            Engagement Analysis
+                                {analysisModal.data?.engagementAnalysis && (
+                                    <div className="bg-slate-800/20 border border-slate-700/30 rounded-2xl p-5">
+                                        <h4 className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider flex items-center gap-2">
+                                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                            Engagement Trends
                                         </h4>
                                         <p className="text-sm text-slate-300 leading-relaxed font-medium">{analysisModal.data.engagementAnalysis}</p>
                                     </div>
@@ -1233,16 +1230,16 @@ export default function DataTable({ data: initialData }: DataTableProps) {
 
                                 {/* High-Ticket Context */}
                                 <div className="grid grid-cols-2 gap-4 mb-8">
-                                    {analysisModal.data.bestTimeToCall && (
+                                    {analysisModal.data?.bestTimeToCall && (
                                         <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4">
                                             <h4 className="text-[10px] uppercase font-black tracking-widest text-amber-500 mb-2 flex items-center gap-2">
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                Best Time to Call
+                                                Optimal Contact
                                             </h4>
                                             <p className="text-sm text-amber-200/80 font-bold">{analysisModal.data.bestTimeToCall}</p>
                                         </div>
                                     )}
-                                    {analysisModal.data.opportunityCost && (
+                                    {analysisModal.data?.opportunityCost && (
                                         <div className="bg-rose-500/5 border border-rose-500/10 rounded-2xl p-4">
                                             <h4 className="text-[10px] uppercase font-black tracking-widest text-rose-500 mb-2 flex items-center gap-2">
                                                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -1257,10 +1254,10 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                     {/* Column 1: Core Analysis & Outreach */}
                                     <div className="space-y-6">
                                         {/* Lead Score Rationale */}
-                                        {analysisModal.data.rationale && (
+                                        {analysisModal.data?.strategicRationale && (
                                             <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
                                                 <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Lead Score Rationale</h4>
-                                                <p className="text-base text-slate-200 leading-relaxed italic font-medium">"{analysisModal.data.rationale}"</p>
+                                                <p className="text-base text-slate-200 leading-relaxed italic font-medium">"{analysisModal.data?.strategicRationale}"</p>
                                             </div>
                                         )}
 
@@ -1273,7 +1270,7 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                                         onClick={() => setAnalysisLanguage('english')}
                                                         className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${analysisLanguage === 'english' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-slate-300'}`}
                                                     >English</button>
-                                                    {analysisModal.data.hinglishMessage && (
+                                                    {analysisModal.data?.hinglishMessage && (
                                                         <button
                                                             onClick={() => setAnalysisLanguage('hinglish')}
                                                             className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${analysisLanguage === 'hinglish' ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/20' : 'text-slate-500 hover:text-slate-300'}`}
@@ -1383,7 +1380,7 @@ export default function DataTable({ data: initialData }: DataTableProps) {
 
 
                                         {/* Objection Handlers */}
-                                        {analysisModal.data.objectionHandlers && analysisModal.data.objectionHandlers.length > 0 && (
+                                        {analysisModal.data?.objectionHandlers && analysisModal.data.objectionHandlers.length > 0 && (
                                             <div className="space-y-3">
                                                 <h4 className="text-xs font-bold text-slate-500 mb-1 uppercase tracking-wider flex items-center gap-2">
                                                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
@@ -1401,15 +1398,15 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                         )}
 
                                         {/* Financial & ROI Section */}
-                                        {(analysisModal.data.projectValueINR || analysisModal.data.leadScore) && (
+                                        {(analysisModal.data?.projectValueINR || analysisModal.data?.leadScore) && (
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-800/40 rounded-2xl p-6 border border-slate-700/50">
-                                                {analysisModal.data.projectValueINR && (
+                                                {analysisModal.data?.projectValueINR && (
                                                     <div>
                                                         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Project Value (INR)</h4>
                                                         <p className="text-2xl font-bold text-green-400">₹{analysisModal.data.projectValueINR.toLocaleString('en-IN')}</p>
                                                     </div>
                                                 )}
-                                                {analysisModal.data.leadScore !== undefined && (
+                                                {analysisModal.data?.leadScore !== undefined && (
                                                     <div>
                                                         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Lead Score</h4>
                                                         <div className="flex items-center gap-2">
@@ -1418,7 +1415,7 @@ export default function DataTable({ data: initialData }: DataTableProps) {
                                                         </div>
                                                     </div>
                                                 )}
-                                                {analysisModal.data.estimatedAnnualROI && (
+                                                {analysisModal.data?.estimatedAnnualROI && (
                                                     <div>
                                                         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Annual Impact</h4>
                                                         <p className="text-sm font-bold text-slate-100">{analysisModal.data.estimatedAnnualROI}</p>
