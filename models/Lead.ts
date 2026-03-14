@@ -44,6 +44,16 @@ export interface ILead extends Document {
         leadScore?: number;
         outreachPriority?: string;
         qualityGrade?: string;
+        niche?: string;
+        marketContext?: string;
+        growthOpportunity?: string;
+        perceivedValue?: string;
+        riskFactors?: string;
+        competitorEdge?: string;
+        instagramStrategy?: string;
+        contentIdeas?: string[];
+        engagementPlan?: string;
+        estimatedDealValue?: string;
         strategicRationale?: string;
         analyzedAt?: Date;
     };
@@ -108,6 +118,16 @@ const LeadSchema: Schema = new Schema({
         leadScore: { type: Number },
         outreachPriority: { type: String },
         qualityGrade: { type: String },
+        niche: { type: String },
+        marketContext: { type: String },
+        growthOpportunity: { type: String },
+        perceivedValue: { type: String },
+        riskFactors: [{ type: String }],
+        competitorEdge: { type: String },
+        instagramStrategy: { type: String },
+        contentIdeas: [{ type: String }],
+        engagementPlan: { type: String },
+        estimatedDealValue: { type: String },
         strategicRationale: { type: String },
         analyzedAt: { type: Date }
     },

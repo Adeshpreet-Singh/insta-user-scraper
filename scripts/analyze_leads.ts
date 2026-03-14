@@ -25,15 +25,6 @@ const openRouter = new OpenRouter({
  */
 const FREE_MODELS = [
     'openrouter/hunter-alpha',
-    'openrouter/healer-alpha',
-    'meta-llama/llama-3.3-70b-instruct:free',
-    'nousresearch/hermes-3-llama-3.1-405b:free',
-    'google/gemma-3-27b-it:free',
-    'mistralai/mistral-small-3.1-24b-instruct:free',
-    'google/gemma-3-12b-it:free',
-    'meta-llama/llama-3.2-3b-instruct:free',
-    'qwen/qwen-2.5-72b-instruct:free',
-    'stepfun/step-3.5-flash:free'
 ];
 
 /**
@@ -127,6 +118,16 @@ Provide a JSON response with the following strictly formatted keys:
 23. "outreachPriority": "High", "Medium", or "Low".
 24. "qualityGrade": Letter grade (A, B, C, D).
 25. "strategicRationale": Reasoning for the grade and chance.
+26. "niche": Specific sub-industry or market segment.
+27. "marketContext": Broader context of their market in India.
+28. "growthOpportunity": Key area for potential business growth.
+29. "perceivedValue": How the market currently perceives their brand.
+30. "riskFactors": Array of 3 potential risks or red flags in their current approach.
+31. "competitorEdge": What sets them apart from local competitors.
+32. "instagramStrategy": Specific recommended IG-first strategy.
+33. "contentIdeas": Array of 3 specific content/reel ideas.
+34. "engagementPlan": Plan to improve follower interaction.
+35. "estimatedDealValue": Descriptive range of potential deal size.
 
 Respond ONLY with valid JSON.
 {
@@ -154,7 +155,17 @@ Respond ONLY with valid JSON.
   "leadScore": 92,
   "outreachPriority": "High",
   "qualityGrade": "A",
-  "strategicRationale": "..."
+  "strategicRationale": "...",
+  "niche": "...",
+  "marketContext": "...",
+  "growthOpportunity": "...",
+  "perceivedValue": "...",
+  "riskFactors": ["...", "..."],
+  "competitorEdge": "...",
+  "instagramStrategy": "...",
+  "contentIdeas": ["...", "..."],
+  "engagementPlan": "...",
+  "estimatedDealValue": "..."
 }
 `;
 
@@ -188,6 +199,16 @@ Respond ONLY with valid JSON.
             outreachPriority: analysis.outreachPriority,
             qualityGrade: analysis.qualityGrade,
             strategicRationale: analysis.strategicRationale,
+            niche: analysis.niche,
+            marketContext: analysis.marketContext,
+            growthOpportunity: analysis.growthOpportunity,
+            perceivedValue: analysis.perceivedValue,
+            riskFactors: analysis.riskFactors || [],
+            competitorEdge: analysis.competitorEdge,
+            instagramStrategy: analysis.instagramStrategy,
+            contentIdeas: analysis.contentIdeas || [],
+            engagementPlan: analysis.engagementPlan,
+            estimatedDealValue: analysis.estimatedDealValue,
             analyzedAt: new Date()
         };
 
@@ -219,7 +240,17 @@ Respond ONLY with valid JSON.
             leadScore: analysis.leadScore,
             outreachPriority: analysis.outreachPriority,
             qualityGrade: analysis.qualityGrade,
-            strategicRationale: analysis.strategicRationale
+            strategicRationale: analysis.strategicRationale,
+            niche: analysis.niche,
+            marketContext: analysis.marketContext,
+            growthOpportunity: analysis.growthOpportunity,
+            perceivedValue: analysis.perceivedValue,
+            riskFactors: (analysis.riskFactors || []).join(' | '),
+            competitorEdge: analysis.competitorEdge,
+            instagramStrategy: analysis.instagramStrategy,
+            contentIdeas: (analysis.contentIdeas || []).join(' | '),
+            engagementPlan: analysis.engagementPlan,
+            estimatedDealValue: analysis.estimatedDealValue
         });
 
         console.log(`✅ Successfully analyzed ${lead.username}`);
@@ -288,7 +319,17 @@ async function analyzeLeads() {
                     { id: 'leadScore', title: 'Lead Score' },
                     { id: 'outreachPriority', title: 'Outreach Priority' },
                     { id: 'qualityGrade', title: 'Quality Grade' },
-                    { id: 'strategicRationale', title: 'Strategic Rationale' }
+                    { id: 'strategicRationale', title: 'Strategic Rationale' },
+                    { id: 'niche', title: 'Niche' },
+                    { id: 'marketContext', title: 'Market Context' },
+                    { id: 'growthOpportunity', title: 'Growth Opportunity' },
+                    { id: 'perceivedValue', title: 'Perceived Value' },
+                    { id: 'riskFactors', title: 'Risk Factors' },
+                    { id: 'competitorEdge', title: 'Competitor Edge' },
+                    { id: 'instagramStrategy', title: 'Instagram Strategy' },
+                    { id: 'contentIdeas', title: 'Content Ideas' },
+                    { id: 'engagementPlan', title: 'Engagement Plan' },
+                    { id: 'estimatedDealValue', title: 'Estimated Deal Value' }
                 ]
             });
             await csvWriter.writeRecords(csvRecords);
